@@ -1,0 +1,15 @@
+umg\edu\gt\compilador\util\ErrorManager.class
+umg\edu\gt\Main.class
+umg\edu\gt\compilador\model\IdentifierExpression.class
+umg\edu\gt\compilador\model\PrintInstruction.class
+umg\edu\gt\compilador\util\FileUtils.class
+umg\edu\gt\compilador\model\Expression.class
+umg\edu\gt\compilador\lexer\Lexer$TokenType.class
+umg\edu\gt\compilador\model\Instruction.class
+umg\edu\gt\compilador\model\NumberExpression.class
+umg\edu\gt\compilador\model\BinaryExpression.class
+umg\edu\gt\compilador\lexer\Lexer.class
+umg\edu\gt\compilador\semantic\Evaluator.class
+umg\edu\gt\compilador\lexer\Lexer$Token.class
+umg\edu\gt\compilador\model\LetInstruction.class
+umg\edu\gt\compilador\parser\Parser.class

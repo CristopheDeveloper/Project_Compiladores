@@ -40,9 +40,16 @@ public class Lexer {
     }
 
     private void skipWhitespace() {
-        while (Character.isWhitespace(peek())) advance();
+        while (position < input.length()) {
+            char c = peek();
+            // Ignorar cualquier tipo de espacio (incluye tabs, \r, \n, etc.)
+            if (Character.isWhitespace(c)) {
+                advance();
+            } else {
+                break;
+            }
+        }
     }
-
     public List<Token> tokenize() {
         List<Token> tokens = new ArrayList<>();
 
@@ -58,20 +65,32 @@ public class Lexer {
                     tokens.add(new Token(TokenType.IDENTIFIER, word));
                 }
             } else if (Character.isDigit(current)) {
-                tokens.add(new Token(TokenType.NUMBER, readNumber()));
+                String number = readNumber();
+                // Si después viene una letra (como en "2x"), insertar multiplicación
+                if (Character.isLetter(peek())) {
+                    tokens.add(new Token(TokenType.NUMBER, number));
+                    tokens.add(new Token(TokenType.OPERATOR, "*"));
+                    tokens.add(new Token(TokenType.IDENTIFIER, String.valueOf(advance())));
+                } else {
+                    tokens.add(new Token(TokenType.NUMBER, number));
+                }
             } else if ("=+-*/".indexOf(current) >= 0) {
                 tokens.add(new Token(TokenType.OPERATOR, String.valueOf(advance())));
             } else if ("();{}".indexOf(current) >= 0) {
                 tokens.add(new Token(TokenType.SYMBOL, String.valueOf(advance())));
             } else {
-                System.err.println("Unexpected character: " + current);
-                advance();
+                // Solo imprimir si realmente es un carácter no válido y visible
+                if (!Character.isWhitespace(current) && current != '\0') {
+                    System.err.println("Unexpected character: " + current);
+                }
+                advance(); // seguir avanzando para evitar bloqueo
             }
         }
 
         tokens.add(new Token(TokenType.EOF, ""));
         return tokens;
     }
+
 
     private String readWord() {
         StringBuilder sb = new StringBuilder();
@@ -88,5 +107,4 @@ public class Lexer {
         }
         return sb.toString();
     }
-
 }

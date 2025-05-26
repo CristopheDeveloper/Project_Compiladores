@@ -70,7 +70,7 @@ public class Parser {
         }
     }
 
-    private Expression parseExpression() {
+    public Expression parseExpression() {
         Expression left = parseTerm();
 
         while (match(TokenType.OPERATOR)) {
