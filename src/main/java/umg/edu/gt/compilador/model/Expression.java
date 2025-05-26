@@ -1,4 +1,4 @@
 package umg.edu.gt.compilador.model;
 
-public abstract class Instruction {
+public abstract class Expression {
 }
