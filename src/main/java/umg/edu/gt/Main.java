@@ -16,7 +16,10 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         // 1. Lee todas las líneas del .c25
-        Path input = Path.of("src/main/resources/test.c25");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Ingrese el archivo que desea cargar ruta: ");
+        String archivo = scanner.nextLine();
+        Path input = Path.of(archivo);
         List<String> lines = Files.readAllLines(input);
 
         ErrorManager err = new ErrorManager();
