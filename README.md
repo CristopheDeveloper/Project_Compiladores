@@ -112,3 +112,46 @@ El archivo `<Carné>.err` tendrá entradas como:
 
 ---
 
+
+##  ¿Cómo usar la herramienta?
+
+1. **Coloca** tu archivo con las funciones en `src/main/resources/`, por ejemplo `misFunciones.c25`.
+2. **Abre** la línea de comandos o terminal.
+3. **Navega** a la carpeta del proyecto.
+4. Ejecuta el programa (asegúrate de tener Java instalado):
+
+   ```bash
+   mvn clean compile exec:java -Dexec.mainClass="umg.edu.gt.Main"
+   ```
+5. Al terminar, en la raíz del proyecto encontrarás:
+
+   * **`salida.res`** con los resultados.
+   * **`<Carné>.err`** con los errores.
+
+---
+
+## ️ Detalles técnicos (simplificado)
+
+* El programa **lee línea por línea** el archivo de entrada.
+* **Valida** la sintaxis básica y detecta errores según los códigos.
+* Convierte la parte derecha (`expresión`) en una estructura interna.
+* **Resuelve** cada ecuación lineal de primer grado: si la ecuación es `ax + b = 0`, calcula `x = -b/a`.
+* **Guarda** los resultados y errores en archivos separados.
+
+---
+
+## Estructura de componentes
+
+El compilador está organizado en módulos que permiten separar responsabilidades y facilitar el mantenimiento:
+
+| Módulo       | Clases                                                                                                                            | Función                                                                                         |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **lexer**    | `Lexer`                                                                                                                           | Divide el texto de entrada en tokens básicos (números, identificadores, operadores y símbolos). |
+| **model**    | `Expression`, `NumberExpression`, `IdentifierExpression`, `BinaryExpression`, `Instruction`, `LetInstruction`, `PrintInstruction` | Define la representación interna (AST) de expresiones y sentencias.                             |
+| **parser**   | `Parser`                                                                                                                          | Analiza la secuencia de tokens y construye el AST empleando las clases del módulo `model`.      |
+| **semantic** | `Evaluator`                                                                                                                       | Recorre el AST para validar y calcular el valor de las expresiones lineales.                    |
+| **util**     | `FileUtils`, `ErrorManager`                                                                                                       | Gestión de lectura/escritura de archivos y recolección de errores por línea.                    |
+| **Main**     | `Main.java`                                                                                                                       | Punto de entrada que orquesta la lectura, validación, parseo, evaluación y salida.              |
+
+> **Advertencia**  
+>Cada componente es esencial: elimina uno y el compilador deja de funcionar correctamente.
