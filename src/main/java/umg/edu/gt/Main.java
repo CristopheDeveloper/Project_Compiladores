@@ -12,104 +12,92 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.*;
 
 public class Main {
+
+
     public static void main(String[] args) throws IOException {
-        // 1. Lee todas las líneas del .c25
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Ingrese el archivo que desea cargar ruta: ");
-        String archivo = scanner.nextLine();
-        Path input = Path.of(archivo);
+
+
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Ingrese la ruta del archivo .c25: ");
+        Path input = Path.of(sc.nextLine().trim());   // ej. src/main/resources/test.c25
+
         List<String> lines = Files.readAllLines(input);
 
+        /* 2. Inicializar gestores -------------------------------------- */
         ErrorManager err = new ErrorManager();
-        List<String> results = new ArrayList<>();
+        List<String> res = new ArrayList<>();
 
-        int lineNumber = 1;
+        Pattern fxPattern = Pattern.compile("(?i)f\\s*\\(\\s*([a-z])\\s*\\)");
+
+        /* 3. Procesar línea a línea ------------------------------------ */
+        int n = 1;
         for (String raw : lines) {
+
+            if (raw == null || raw.isBlank()) { n++; continue; }      // saltar vacías
             String t = raw.trim();
 
-            // Error 1: falta ';'
-            if (!t.endsWith(";")) {
-                err.agregarError(lineNumber, 1);
-                lineNumber++;
-                continue;
-            }
-            // Error 4: no inicia con f(
-            if (!t.startsWith("f(")) {
-                err.agregarError(lineNumber, 4);
-                lineNumber++;
-                continue;
-            }
+            /* Encabezados o comentarios (no empiezan con f(…) ) */
+            if (!t.toLowerCase().startsWith("f(")) { n++; continue; }
 
+            /* Error 1: falta ‘;’ */
+            if (!t.endsWith(";")) { err.agregarError(n, 1); n++; continue; }
 
-            int eqPos = t.indexOf('=');
-            if (eqPos < 0) {
-                err.agregarError(lineNumber, 5);
-                lineNumber++;
-                continue;
-            }
-            String lhs = t.substring(0, eqPos).trim();                   // p.ej. "f(x)"
-            String rhs = t.substring(eqPos + 1, t.length() - 1).trim();  // p.ej. "2x + 1"
+            /* Extraer LHS y RHS */
+            int eq = t.indexOf('=');
+            if (eq < 0) { err.agregarError(n, 5); n++; continue; }    // Error 5
 
+            String lhs = t.substring(0, eq).trim();
+            String rhs = t.substring(eq + 1, t.length() - 1).trim(); // sin ';'
 
-            if (!lhs.matches("f\\([A-Za-z]\\)")) {
-                err.agregarError(lineNumber, 6);
-                lineNumber++;
-                continue;
-            }
+            /* Error 6: mal formado f(x) (pero acepta espacios y mayúsculas) */
+            Matcher m = fxPattern.matcher(lhs);
+            if (!m.matches()) { err.agregarError(n, 6); n++; continue; }
 
+            /* Variable declarada (minúscula) */
+            String declared = m.group(1).toLowerCase();
 
-            String declaredVar = lhs.substring(2, 3);
-
-
+            /* Tokenizar RHS */
             Lexer lexer = new Lexer(rhs);
             List<Token> tokens = lexer.tokenize();
 
+            /* Error 7: operador no soportado */
+            boolean opInvalid = tokens.stream()
+                    .anyMatch(tk -> tk.type == Lexer.TokenType.OPERATOR &&
+                            !List.of("+", "-", "*", "/").contains(tk.value));
+            if (opInvalid) { err.agregarError(n, 7); n++; continue; }
 
+            /* Error 3 y 2: variables presentes */
             Set<String> vars = new HashSet<>();
-            for (Token token : tokens) {
-                if (token.type == Lexer.TokenType.IDENTIFIER) {
-                    vars.add(token.value);
-                }
-            }
-            if (vars.size() > 1) {
-                err.agregarError(lineNumber, 3);
-                lineNumber++;
-                continue;
-            }
+            for (Token tk : tokens)
+                if (tk.type == Lexer.TokenType.IDENTIFIER)
+                    vars.add(tk.value.toLowerCase());
 
+            if (vars.size() > 1)           { err.agregarError(n, 3); n++; continue; } // Error 3
+            if (!vars.contains(declared))  { err.agregarError(n, 2); n++; continue; } // Error 2
 
-            if (!vars.contains(declaredVar)) {
-                err.agregarError(lineNumber, 2);
-                lineNumber++;
-                continue;
-            }
-
-
+            /* Parsear expresión */
             Parser parser = new Parser(tokens);
             Expression expr;
             try {
                 expr = parser.parseExpression();
             } catch (RuntimeException ex) {
-                err.agregarError(lineNumber, 5);
-                lineNumber++;
-                continue;
+                err.agregarError(n, 5); n++; continue; // Error 5
             }
 
+            /* Evaluar (ax + b = 0) */
+            Evaluator ev = new Evaluator();
+            ev.ejecutar(declared, expr);
 
-            Evaluator evaluator = new Evaluator();
-            evaluator.ejecutar(declaredVar, expr);
-
-
-            results.add(lineNumber + ".- " + evaluator.getUltimaAsignacion());
-
-            lineNumber++;
+            res.add(n + ".- " + ev.getUltimaAsignacion());
+            n++;
         }
 
-
-        FileUtils.writeFile("salida.res",   String.join("\n", results));
-        FileUtils.writeFile("35723025.err", String.join("\n", err.getErrores()));
+        /* 4. Escribir salidas ----------------------------------------- */
+        FileUtils.writeFile("salida.res", String.join("\n", res));
+        FileUtils.writeFile("pruebas2.err", String.join("\n", err.getErrores()));
 
         System.out.println("Compilación finalizada.");
     }
