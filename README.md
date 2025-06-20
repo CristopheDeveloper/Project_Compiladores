@@ -90,7 +90,8 @@ El archivo `<Carné>.err` tendrá entradas como:
 1. **Coloca** tu archivo con las funciones en `src/main/resources/`, por ejemplo `misFunciones.c25`.
 2. **Abre** la línea de comandos o terminal.
 3. **Navega** a la carpeta del proyecto.
-4. Ejecuta el programa (asegúrate de tener Java instalado):
+4. Ejecuta el programa (asegúrate de tener Java instalado). Al iniciar, te
+   pedirá tu número de carné para crear el archivo de errores:
 
    ```bash
    mvn clean compile exec:java -Dexec.mainClass="umg.edu.gt.Main"
@@ -99,6 +100,12 @@ El archivo `<Carné>.err` tendrá entradas como:
 
     * **`salida.res`** con los resultados.
     * **`<Carné>.err`** con los errores.
+
+Para ejecutar las pruebas unitarias utiliza:
+
+```bash
+mvn test
+```
 
 ---
 
@@ -118,7 +125,8 @@ El archivo `<Carné>.err` tendrá entradas como:
 1. **Coloca** tu archivo con las funciones en `src/main/resources/`, por ejemplo `misFunciones.c25`.
 2. **Abre** la línea de comandos o terminal.
 3. **Navega** a la carpeta del proyecto.
-4. Ejecuta el programa (asegúrate de tener Java instalado):
+4. Ejecuta el programa (asegúrate de tener Java instalado). Al iniciar, te
+   pedirá tu número de carné para crear el archivo de errores:
 
    ```bash
    mvn clean compile exec:java -Dexec.mainClass="umg.edu.gt.Main"
@@ -128,9 +136,15 @@ El archivo `<Carné>.err` tendrá entradas como:
    * **`salida.res`** con los resultados.
    * **`<Carné>.err`** con los errores.
 
+Para ejecutar las pruebas unitarias utiliza:
+
+```bash
+mvn test
+```
+
 ---
 
-## ️ Detalles técnicos (simplificado)
+## Detalles técnicos (simplificado)
 
 * El programa **lee línea por línea** el archivo de entrada.
 * **Valida** la sintaxis básica y detecta errores según los códigos.

@@ -81,11 +81,12 @@ public class Lexer {
             // Si comienza con letra, puede ser una palabra clave o identificador
             if (Character.isLetter(current)) {
                 String word = readWord();
+                String lower = word.toLowerCase();
                 // Si es palabra clave conocida
-                if (word.equals("let") || word.equals("print")) {
-                    tokens.add(new Token(TokenType.KEYWORD, word));
+                if (lower.equals("let") || lower.equals("print")) {
+                    tokens.add(new Token(TokenType.KEYWORD, lower));
                 } else {
-                    tokens.add(new Token(TokenType.IDENTIFIER, word));
+                    tokens.add(new Token(TokenType.IDENTIFIER, lower));
                 }
 
                 // Si comienza con número, puede ser un número o multiplicación implícita (como 2x)
@@ -96,7 +97,7 @@ public class Lexer {
                 if (Character.isLetter(peek())) {
                     tokens.add(new Token(TokenType.NUMBER, number));
                     tokens.add(new Token(TokenType.OPERATOR, "*")); // inserta operador multiplicación
-                    tokens.add(new Token(TokenType.IDENTIFIER, String.valueOf(advance()))); // inserta identificador
+                    tokens.add(new Token(TokenType.IDENTIFIER, String.valueOf(Character.toLowerCase(advance())))); // inserta identificador
                 } else {
                     tokens.add(new Token(TokenType.NUMBER, number));
                 }
