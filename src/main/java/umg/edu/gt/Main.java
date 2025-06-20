@@ -21,6 +21,8 @@ public class Main {
 
 
         Scanner sc = new Scanner(System.in);
+        System.out.print("Ingrese su número de carné: ");
+        String carnet = sc.nextLine().trim();
         System.out.print("Ingrese la ruta del archivo .c25: ");
         Path input = Path.of(sc.nextLine().trim());   // ej. src/main/resources/test.c25
 
@@ -97,7 +99,7 @@ public class Main {
 
         /* 4. Escribir salidas ----------------------------------------- */
         FileUtils.writeFile("salida.res", String.join("\n", res));
-        FileUtils.writeFile("pruebas2.err", String.join("\n", err.getErrores()));
+        FileUtils.writeFile(carnet + ".err", String.join("\n", err.getErrores()));
 
         System.out.println("Compilación finalizada.");
     }
